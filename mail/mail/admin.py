@@ -7,6 +7,7 @@ class UserAdmin(admin.ModelAdmin):
 
 class EmailAdmin(admin.ModelAdmin):
     list_display = ("id","sender","subject","body","timestamp","read","archived")
+    filter_horizontal = ('recipients',) #present a ManyToManyField in Django Admin Interface
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Email, EmailAdmin)
