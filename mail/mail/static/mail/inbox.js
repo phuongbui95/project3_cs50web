@@ -85,30 +85,47 @@ function get_mailbox(mailbox) {
   .then(emails => {
     // Print emails
     // console.log(emails);
+
     // only get 10 latest emails
     console.log(`Mailbox: ${mailbox}`);
     const email_array = emails.slice(-10);
     // console.log(email_array);
+
     // get the array of ids in that array of objects
     const email_ids = email_array.map(obj => obj.id);
-    console.log(email_ids);
+    // console.log(email_ids);
+
     // show the objects in email_ids array
-    // email_ids.forEach(email_id => get_email(email_id));
-    
-    
+    email_ids.forEach(email_id => load_email(email_id));
+    return;
   });
 }
 
 // GET particular email from email_id
-function get_email(email_id) {
+function load_email(email_id) {
   // get emails by email_id
   // let email_id = 1;
   fetch(`/emails/${email_id}`)
   .then(response => response.json())
   .then(email => {
     // Print email
-    console.log(email);
-    return email;
+    // console.log(email);
+    
+    //render email and display on the front-end
+    const sender = email.sender;
+    // let subject = email.subject;
+    // if(!subject) subject = 'no subject';
+    const subject = email.subject;
+    const timestamp = email.timestamp;
+    // console.log(`${sender}, ${subject}, ${timestamp}`);
+    const element = document.createElement('div');
+    element.innerHTML = `${sender}, ${subject}, ${timestamp}`;
+    element.addEventListener('click', () => {
+      console.log('This email has been clicked!');
+    })
+    document.querySelector('#emails-view').append(element);
+
+    return;
   });
 }
 
