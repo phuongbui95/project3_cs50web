@@ -1,3 +1,4 @@
+///--Main functions ----///
 document.addEventListener('DOMContentLoaded', function() {
 
   // Use buttons to toggle between views
@@ -27,14 +28,13 @@ function compose_email() {
     let subject = document.querySelector('#compose-subject').value;
     let body = document.querySelector('#compose-body').value;
     // alert(`${recipients}, ${subject}, ${body}`)
-    send_email(recipients, subject, body);
-    // alert(post_email())
+    alert(post_email(recipients, subject, body));
   }
 
   //Use addEventListener to load the page
   document.querySelector('form').addEventListener('submit', function(event) {
     event.preventDefault(); //prevent the default event from load_mailbox(mailbox)
-    const mailbox = this.getAttribute('id') === 'compose-form' ? 'sent' : 'inbox';
+    const mailbox = this.querySelector('#id') === 'compose-form' ? 'sent' : 'inbox';
     load_mailbox(mailbox);
   });
   
@@ -48,10 +48,15 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  
+  // Show emails of that mailbox
+  get_mailbox(mailbox);
 }
 
-function send_email(recipientsVar, subjectVar, bodyVar) {
-  // Send a POST request to the URL api
+///--API-related functions ----///
+// Post email when using Compose
+function post_email(recipientsVar, subjectVar, bodyVar) {
+  ////-- Send a POST request to the URL api
   const requestOptions =  {
     method: 'POST',
     body: JSON.stringify({
@@ -60,12 +65,51 @@ function send_email(recipientsVar, subjectVar, bodyVar) {
         body: `${bodyVar}`
     })
   }
+  // activate the API to POST data
   fetch('/emails', requestOptions)
   .then(response => response.json())
   .then(result => {
       // Print result in console
-      console.log(result)
-      
+      console.log(result);
+      return;
   })
-  return true;
+  
 }
+
+// GET all emails in mailbox
+function get_mailbox(mailbox) {
+  // let mailbox = 'inbox';
+  // get all emails
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
+    // Print emails
+    // console.log(emails);
+    // only get 10 latest emails
+    console.log(`Mailbox: ${mailbox}`);
+    const email_array = emails.slice(-10);
+    // console.log(email_array);
+    // get the array of ids in that array of objects
+    const email_ids = email_array.map(obj => obj.id);
+    console.log(email_ids);
+    // show the objects in email_ids array
+    // email_ids.forEach(email_id => get_email(email_id));
+    
+    
+  });
+}
+
+// GET particular email from email_id
+function get_email(email_id) {
+  // get emails by email_id
+  // let email_id = 1;
+  fetch(`/emails/${email_id}`)
+  .then(response => response.json())
+  .then(email => {
+    // Print email
+    console.log(email);
+    return email;
+  });
+}
+
+
