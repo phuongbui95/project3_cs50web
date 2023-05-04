@@ -18,30 +18,26 @@ function compose_email() {
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
-  document.querySelector('#compose-recipients').value = 'thor@example.com';//'';
-  document.querySelector('#compose-subject').value = 'test subject';//'';
-  document.querySelector('#compose-body').value = 'test body of email';//'';
+  document.querySelector('#compose-recipients').value = '';
+  document.querySelector('#compose-subject').value = '';
+  document.querySelector('#compose-body').value = '';
 
-  //////------ Send email when submit is clicked
-  document.querySelector('form').onsubmit = () => {
+  //////------ Redirect to 'sent' mailbox when submit is clicked
+  document.querySelector('form').onsubmit = (event) => {
+    // send value from form's fields and trigger POST api
     let recipients = document.querySelector('#compose-recipients').value; // use .value to collect data from a Form Submit
     let subject = document.querySelector('#compose-subject').value;
     let body = document.querySelector('#compose-body').value;
-    // alert(`${recipients}, ${subject}, ${body}`)
-    alert(post_email(recipients, subject, body));
+    post_email(recipients, subject, body);
+    
+    // Load 'sent' mailbox
+    event.preventDefault();
+    load_mailbox('sent');
   }
-
-  //Use addEventListener to load the page
-  document.querySelector('form').addEventListener('submit', function(event) {
-    event.preventDefault(); //prevent the default event from load_mailbox(mailbox)
-    const mailbox = this.querySelector('#id') === 'compose-form' ? 'sent' : 'inbox';
-    load_mailbox(mailbox);
-  });
   
 }
 
 function load_mailbox(mailbox) {
-  
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
@@ -78,14 +74,10 @@ function post_email(recipientsVar, subjectVar, bodyVar) {
 
 // GET all emails in mailbox
 function get_mailbox(mailbox) {
-  // let mailbox = 'inbox';
   // get all emails
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-    // Print emails
-    // console.log(emails);
-
     // only get 10 latest emails
     console.log(`Mailbox: ${mailbox}`);
     const email_array = emails.slice(-10);
@@ -96,37 +88,50 @@ function get_mailbox(mailbox) {
     // console.log(email_ids);
 
     // show the objects in email_ids array
-    email_ids.forEach(email_id => load_email(email_id));
+    email_ids.forEach(email_id => view_email(email_id));
     return;
   });
 }
 
 // GET particular email from email_id
-function load_email(email_id) {
+function view_email(email_id) {
   // get emails by email_id
   // let email_id = 1;
   fetch(`/emails/${email_id}`)
   .then(response => response.json())
   .then(email => {
-    // Print email
-    // console.log(email);
-    
-    //render email and display on the front-end
+    //-- Render email's content and display in emails-view of mailbox
     const sender = email.sender;
-    // let subject = email.subject;
-    // if(!subject) subject = 'no subject';
+    const recipients = email.recipients;
     const subject = email.subject;
     const timestamp = email.timestamp;
-    // console.log(`${sender}, ${subject}, ${timestamp}`);
-    const element = document.createElement('div');
-    element.innerHTML = `${sender}, ${subject}, ${timestamp}`;
-    element.addEventListener('click', () => {
-      console.log('This email has been clicked!');
-    })
-    document.querySelector('#emails-view').append(element);
+    const body = email.body;
+    
+    // Create div tag to contain email's content
+    const email_div = document.createElement('div');
+    email_div.innerHTML = `${sender}, ${subject}, ${timestamp}`;
+    // Add border to each email box
+    document.querySelector('#emails-view').append(email_div);
+    email_div.style.border = "1px solid black";
+    // Change background's color of read emails
+    const isRead = email.read;
+    if(isRead) {
+      email_div.style.backgroundColor = "gray";
+    } else {
+      email_div.style.backgroundColor = "white";
+    }
 
+    // Event when a div element containing email is clicked
+    email_div.addEventListener('click', () => {
+      console.log(`Email ${email_id} has been clicked!`);
+      console.log(`Sender: ${sender}
+                  \nRecipients: ${recipients}
+                  \nSubject: ${subject}
+                  \nTimestamp: ${timestamp}
+                  \nBody: ${body}
+                  `
+                  );
+    });
     return;
   });
 }
-
-
