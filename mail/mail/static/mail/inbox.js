@@ -78,18 +78,51 @@ function get_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-    // only get 10 latest emails
     console.log(`Mailbox: ${mailbox}`);
-    const email_array = emails.slice(-10);
-    // console.log(email_array);
-
-    // get the array of ids in that array of objects
-    const email_ids = email_array.map(obj => obj.id);
-    // console.log(email_ids);
-
-    // show the objects in email_ids array
-    email_ids.forEach(email_id => view_email(email_id));
+    // Sort the array of emails by timestamp in descending order
+    let sortedEmails = emails.sort((a,b) => b.timestamp - a.timestamp);
+    // // Get the first 10 timestamps of elements in the sorted array
+    // let largestTimestamps = sortedEmails.slice(0,10).map(email => email.timestamp);
+    // // create a new array containing only the emails with timestamps in the extracted ids
+    // let filteredEmails = emails.filter(email => largestTimestamps.includes(email.timestamp));
+    // // let filteredEmails_timestamps = filteredEmails.map(email => console.log(email.timestamp));
+    
+    // Show emails in #emails-view
+    let latest10SortedEmails = sortedEmails.slice(0,10);
+    latest10SortedEmails.forEach(email => {
+      //-- Display overview of email's content in emails-view of mailbox
+      list_emails(email.sender, email.subject, email.timestamp, email.read, email.id);
+    });
     return;
+  });
+}
+
+//
+function list_emails(senderVar, subjectVar, timestampVar, readVar, idVar) {
+  // Create div tag to contain email's content
+  const email_div = document.createElement('div');
+  email_div.className= 'overview';
+  email_div.innerHTML = `${senderVar}, ${subjectVar}, ${timestampVar}<br>`; //add <br> to see line breaks
+  // Add border to each email box
+  document.querySelector('#emails-view').append(email_div);
+  email_div.style.border = "1px solid black";
+  // Change background's color of read emails
+  if(readVar) {
+  email_div.style.backgroundColor = "gray";
+  } else {
+  email_div.style.backgroundColor = "white";
+  }
+
+  // Event when a div element containing email is clicked
+  email_div.addEventListener('click', () => {
+  console.log(`Email ${idVar} has been clicked!`);
+  // console.log(`Sender: ${sender}
+  //             \nRecipients: ${recipients}
+  //             \nSubject: ${subject}
+  //             \nTimestamp: ${timestamp}
+  //             \nBody: ${body}
+  //             `
+  //             );
   });
 }
 
@@ -100,38 +133,7 @@ function view_email(email_id) {
   fetch(`/emails/${email_id}`)
   .then(response => response.json())
   .then(email => {
-    //-- Render email's content and display in emails-view of mailbox
-    const sender = email.sender;
-    const recipients = email.recipients;
-    const subject = email.subject;
-    const timestamp = email.timestamp;
-    const body = email.body;
-    
-    // Create div tag to contain email's content
-    const email_div = document.createElement('div');
-    email_div.innerHTML = `${sender}, ${subject}, ${timestamp}`;
-    // Add border to each email box
-    document.querySelector('#emails-view').append(email_div);
-    email_div.style.border = "1px solid black";
-    // Change background's color of read emails
-    const isRead = email.read;
-    if(isRead) {
-      email_div.style.backgroundColor = "gray";
-    } else {
-      email_div.style.backgroundColor = "white";
-    }
-
-    // Event when a div element containing email is clicked
-    email_div.addEventListener('click', () => {
-      console.log(`Email ${email_id} has been clicked!`);
-      console.log(`Sender: ${sender}
-                  \nRecipients: ${recipients}
-                  \nSubject: ${subject}
-                  \nTimestamp: ${timestamp}
-                  \nBody: ${body}
-                  `
-                  );
-    });
+    console.log(`Email id: ${email.id}`);
     return;
   });
 }
