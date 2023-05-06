@@ -33,6 +33,7 @@ function compose_email() {
     // Load 'sent' mailbox
     event.preventDefault();
     load_mailbox('sent');
+    
   }
   
 }
