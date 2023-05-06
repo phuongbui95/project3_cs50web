@@ -16,6 +16,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#in-email-view').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -42,6 +43,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#in-email-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -82,6 +84,7 @@ function get_mailbox(mailbox) {
     console.log(`Mailbox: ${mailbox}`);
     // Sort the array of emails by timestamp in descending order
     let sortedEmails = emails.sort((a,b) => b.timestamp - a.timestamp);
+    
     // // Get the first 10 timestamps of elements in the sorted array
     // let largestTimestamps = sortedEmails.slice(0,10).map(email => email.timestamp);
     // // create a new array containing only the emails with timestamps in the extracted ids
@@ -116,25 +119,39 @@ function list_emails(senderVar, subjectVar, timestampVar, readVar, idVar) {
 
   // Event when a div element containing email is clicked
   email_div.addEventListener('click', () => {
-  console.log(`Email ${idVar} has been clicked!`);
-  // console.log(`Sender: ${sender}
-  //             \nRecipients: ${recipients}
-  //             \nSubject: ${subject}
-  //             \nTimestamp: ${timestamp}
-  //             \nBody: ${body}
-  //             `
-  //             );
+    // Show in-email-view and hide other views
+    document.querySelector('#emails-view').style.display = 'none';
+    document.querySelector('#compose-view').style.display = 'none';
+    view_email(idVar);
   });
 }
 
 // GET particular email from email_id
 function view_email(email_id) {
   // get emails by email_id
-  // let email_id = 1;
+  
   fetch(`/emails/${email_id}`)
   .then(response => response.json())
   .then(email => {
-    console.log(`Email id: ${email.id}`);
+    console.log(`Email ${email_id} has been clicked!`);
+    /** in-email-view
+     * From: sender
+     * To: recipients
+     * Subject: subject
+     * --> add a horizontal break line <hr> here!
+     * Show the 'body' of email here
+     */
+    
+    // Show in-email-view
+    let emailView = document.querySelector('#in-email-view');
+    emailView.style.display = 'block';
+    emailView.innerHTML = `From: ${email.sender}<br>
+                          To: ${email.recipients}<br>
+                          Subject: ${email.subject}<br>
+                          Timestamp${email.timestamp}<br>
+                          <hr>
+                          ${email.body}
+                          `;
     return;
   });
 }
