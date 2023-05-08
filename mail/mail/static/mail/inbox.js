@@ -159,83 +159,40 @@ function view_email(email_id, mailbox) {
     //--- Show in-email-view ---//
     let emailView = document.querySelector('#in-email-view');
     emailView.style.display = 'block';
-    // Archive button for emails in 'inbox' mailbox
-    /**
-     * Create a 'Archive' button
-     * console.log('Click on Archive button');
-     * If button is pressed, append this email to 'archive' mailbox
-     */
-    let archive_button = document.createElement('BUTTON');
-    archive_button.setAttribute('id','archive');
-    let archive_textnode = document.createTextNode('Archive');
-    archive_button.appendChild(archive_textnode);
-    
-    archive_button.addEventListener('click', () => {
-      console.log('Click on archive_button');
-    });
-
-    // Unarchive button for emails in 'archive' mailbox
-    /**
-     * Create a 'Unarchive' button
-     * console.log('Click on Unarchive button');
-     * If button is pressed, append this email to 'inbox' mailbox
-     */
-    let unarchive_button = document.createElement('BUTTON');
-    unarchive_button.setAttribute('id','unarchive');
-    let unarchive_textnode = document.createTextNode('Unarchive');
-    unarchive_button.appendChild(unarchive_textnode);
-    
-    unarchive_button.addEventListener('click', () => {
-      console.log('Click on unarchive_button');
-    });
-
-    // Reply button
-    /**
-     * Create a 'Reply' button
-     * console.log('click on Reply');
-     */
-    let reply_button = document.createElement('BUTTON');
-    reply_button.setAttribute('id','reply');
-    let reply_textnode = document.createTextNode('Reply');
-    reply_button.appendChild(reply_textnode);
-    reply_button.addEventListener('click', () => {
-      console.log('Click on reply_button');
-    });
-
-    // class = intro-view
-    let intro_div = document.createElement('div')
-    intro_div.className = "intro-view";
-    intro_div.innerHTML = `From: ${email.sender}<br>
-                          To: ${email.recipients}<br>
-                          Subject: ${email.subject}<br>
-                          Timestamp${email.timestamp}<br>
-                          `;
-    intro_div.addEventListener('click', () => {
-      console.log('Click on intro_div');
-    });
-    // class = body-view
-    let body_div = document.createElement('div')
-    body_div.className = "body-view";
-    body_div.innerHTML = `<hr>${email.body}`;
-    body_div.addEventListener('click', () => {
-      console.log('Click on body_div');
-    });
-
-    // add elements to emailView
-    let emailView_array = [intro_div,reply_button
-                          ,archive_button,unarchive_button
-                          ,body_div];
-    emailView_array.forEach(view => emailView.appendChild(view));
-    
+    emailView.innerHTML = `
+                <div class='intro-view'>       
+                  From: ${email.sender}<br>
+                  To: ${email.recipients}<br>
+                  Subject: ${email.subject}<br>
+                  Timestamp${email.timestamp}<br>   
+                </div>
+                <div class='buttons'>
+                  <button class="button reply">Reply</button>
+                  <button class="button archive">Archive</button>
+                  <button class="button unarchive">Unarchive</button>
+                </div>
+                <div class='body-view'>
+                  <hr>${email.body}
+                </div>
+                `;
+    document.querySelector('.reply').onclick = () => {
+      console.log('Clicked on Reply');
+    }
+    document.querySelector('.archive').onclick = () => {
+      console.log('Clicked on Archive');
+    }
+    document.querySelector('.unarchive').onclick = () => {
+      console.log('Clicked on Unarchive');
+    }
     // button customization
-    // if(mailbox == 'sent'){
-    //   document.querySelector('#archive').style.display='none';
-    //   document.querySelector('#unarchive').style.display='none';
-    // } else if(mailbox == 'inbox'){
-    //   document.querySelector('#unarchive').style.display='none';
-    // } else {
-    //   document.querySelector('#archive').style.display='none';
-    // }
+    if(mailbox == 'sent'){
+      document.querySelector('.archive').style.display='none';
+      document.querySelector('.unarchive').style.display='none';
+    } else if(mailbox == 'inbox'){
+      document.querySelector('.unarchive').style.display='none';
+    } else {
+      document.querySelector('.archive').style.display='none';
+    }
     return;
   });
 }
