@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive')); //#acrhived & archive
+  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
   ////----- By default, load the inbox
@@ -46,16 +46,9 @@ function load_mailbox(mailbox) {
   document.querySelector('#in-email-view').style.display = 'none';
 
   // Show the mailbox name
-  let mailbox_div = "";
-  if(mailbox=='archive') {
-    mailbox_div='archived'; //pass the api's constraint
-  } 
-  else {
-    mailbox_div = mailbox;
-  }
   document.querySelector('#emails-view').innerHTML = `
-                                                      <div id="${mailbox_div}_div">
-                                                        <h3>${mailbox_div.charAt(0).toUpperCase() + mailbox_div.slice(1)}</h3>
+                                                      <div id="${mailbox}_div">
+                                                        <h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>
                                                       </div>
                                                       `;
   
@@ -100,10 +93,13 @@ function get_mailbox(mailbox) {
     let filteredEmails = [];
     if(mailbox == 'inbox') {
       filteredEmails = sortedEmails.filter(email => email.archived === false);
+      
     } else if(mailbox == 'archive') {
       filteredEmails = sortedEmails.filter(email => email.archived === true);
+      
     } else {
       filteredEmails = sortedEmails;
+      
     }
     
     
@@ -129,7 +125,7 @@ function list_emails(senderVar, subjectVar, timestampVar, readVar, idVar, mailbo
   email_div.setAttribute('id',`email_${idVar}`);
   email_div.innerHTML = `${senderVar}, ${subjectVar}, ${timestampVar}<br>`; //add <br> to see line breaks
   // Append email_div to parent div in mailbox
-  target_mailbox_div.append(email_div);
+  target_mailbox_div.appendChild(email_div);
   // Add border to target mailbox
   email_div.style.border = "1px solid black";
   // Change background's color of read emails
@@ -189,9 +185,9 @@ function view_email(email_id, mailbox) {
                   Timestamp${email.timestamp}<br>   
                 </div>
                 <div class='buttons'>
-                  <button id="reply">Reply</button>
-                  <button id="archive">Archive</button>
-                  <button id="unarchive">Unarchive</button>
+                  <button id="replyButton">Reply</button>
+                  <button id="archiveButton">Archive</button>
+                  <button id="unarchiveButton">Unarchive</button>
                 </div>
                 <div class='body-view'>
                   <hr>${email.body}
@@ -200,21 +196,21 @@ function view_email(email_id, mailbox) {
                 
     // Hide the expected buttons
     if(mailbox == 'sent'){
-      document.querySelector('#archive').style.display='none';
-      document.querySelector('#unarchive').style.display='none';
+      document.querySelector('#archiveButton').style.display='none';
+      document.querySelector('#unarchiveButton').style.display='none';
     } else if(mailbox == 'inbox'){
-      document.querySelector('#unarchive').style.display='none';
+      document.querySelector('#unarchiveButton').style.display='none';
     } else {
-      document.querySelector('#archive').style.display='none';
+      document.querySelector('#archiveButton').style.display='none';
     }
 
     // Trigger the buttons
     // Click on Reply
-    document.querySelector('#reply').onclick = () => {
+    document.querySelector('#replyButton').onclick = () => {
       console.log('Clicked on Reply');
     }
     // Click on archive
-    document.querySelector('#archive').onclick = () => {
+    document.querySelector('#archiveButton').onclick = () => {
       console.log('Clicked on Archive');
       // Update archive = true
       fetch(`/emails/${email_id}`, {
@@ -227,16 +223,12 @@ function view_email(email_id, mailbox) {
         console.log(response);
         console.log(`Email ${email_id} is archived`);
       })
-      /**
-       * Move email from 'inbox' to 'archive' mailbox
-       * 
-       * * Load 'inbox' mailbox by default 
-      */
+      // load 'inbox'
       load_mailbox('inbox');
     }
 
     // Update archive = false
-    document.querySelector('#unarchive').onclick = () => {
+    document.querySelector('#unarchiveButton').onclick = () => {
       console.log('Clicked on Unarchive');
       // Update archive = false
       fetch(`/emails/${email_id}`, {
@@ -249,12 +241,7 @@ function view_email(email_id, mailbox) {
         console.log(response);
         console.log(`Email ${email_id} is unarchived`);
       })
-      /**
-       * Move email from 'archived' to 'inbox' mailbox
-       * * Step 01: Remove that email's div from archived by id=`email_${email_id}`
-       * * Step 02: Shift/Push that email to inbox.
-       * * Load 'inbox' mailbox by default 
-      */
+      // load 'inbox'
       load_mailbox('inbox');
     }
     return;
