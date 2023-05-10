@@ -26,13 +26,26 @@
             <div class="form-group">
                 <input class="form-control" id="compose-subject" placeholder="Subject">
             </div>
+            <!-- this view is for Replied sections -->
+            <div class='reply-view'>
+                Old replies here
+                => Only show this view in reply mode
+                <hr>
+            </div>
+            <!--  -->
             <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
             <input type="submit" class="btn btn-primary"/>
         </form>
     </div>
 
     <div id="in-email-view">
-    </div>
+        <div class='intro-view'></div>
+        <div class='buttons'></div>
+        <div class='body-view'>
+            <div class="first-body"></div>
+            <hr>
+            <div class="reply-bodies"><h3>Append replies here</h3></div>
+        </div>
 {% endblock %}
 
 {% block script %}

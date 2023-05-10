@@ -101,8 +101,7 @@ function get_mailbox(mailbox) {
       filteredEmails = sortedEmails;
       
     }
-    
-    
+        
     // Show emails in #emails-view
     let latestfilteredEmails = filteredEmails.slice(0,10);
     // console.log(latestfilteredEmails);
@@ -177,22 +176,23 @@ function view_email(email_id, mailbox) {
     //--- Show in-email-view ---//
     let emailView = document.querySelector('#in-email-view');
     emailView.style.display = 'block';
-    emailView.innerHTML = `
-                <div class='intro-view'>       
-                  From: ${email.sender}<br>
-                  To: ${email.recipients}<br>
-                  Subject: ${email.subject}<br>
-                  Timestamp${email.timestamp}<br>   
-                </div>
-                <div class='buttons'>
-                  <button id="replyButton">Reply</button>
-                  <button id="archiveButton">Archive</button>
-                  <button id="unarchiveButton">Unarchive</button>
-                </div>
-                <div class='body-view'>
-                  <hr>${email.body}
-                </div>
-                `;
+    let email_intro_view = emailView.querySelector('.intro-view');
+    email_intro_view.innerHTML =
+    `
+      From: ${email.sender}<br>
+      To: ${email.recipients}<br>
+      Subject: ${email.subject}<br>
+      Timestamp${email.timestamp}<br>   
+    `;
+    let email_buttons_view = emailView.querySelector('.buttons');
+    email_buttons_view.innerHTML =
+    `
+    <button id="replyButton">Reply</button>
+    <button id="archiveButton">Archive</button>
+    <button id="unarchiveButton">Unarchive</button>
+    `;
+    let email_firstBody_view = emailView.querySelector('.body-view .first-body');
+    email_firstBody_view.innerHTML =`<hr>${email.body}`;
                 
     // Hide the expected buttons
     if(mailbox == 'sent'){
@@ -205,10 +205,6 @@ function view_email(email_id, mailbox) {
     }
 
     // Trigger the buttons
-    // Click on Reply
-    document.querySelector('#replyButton').onclick = () => {
-      console.log('Clicked on Reply');
-    }
     // Click on archive
     document.querySelector('#archiveButton').onclick = () => {
       console.log('Clicked on Archive');
@@ -216,7 +212,7 @@ function view_email(email_id, mailbox) {
       fetch(`/emails/${email_id}`, {
         method: 'PUT',
         body: JSON.stringify({
-          archived: true
+          archived: true //archived, not archive
         })
       })
       .then(response => {
@@ -234,7 +230,7 @@ function view_email(email_id, mailbox) {
       fetch(`/emails/${email_id}`, {
         method: 'PUT',
         body: JSON.stringify({
-          archived: false
+          archived: false //archived, not archive
         })
       })
       .then(response => {
@@ -244,6 +240,44 @@ function view_email(email_id, mailbox) {
       // load 'inbox'
       load_mailbox('inbox');
     }
+
+    // Click on Reply
+    document.querySelector('#replyButton').onclick = () => {
+      console.log('Clicked on Reply');
+      reply_email(email.sender, email.subject, email.timestamp, email.body);
+    }
     return;
   });
+}
+
+function reply_email(senderVar, subjectVar, timestampVar, bodyVar) {
+  // Show compose view and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#in-email-view').style.display = 'none';
+
+  // Pre-fill composition fields to reply the original email
+  document.querySelector('#compose-recipients').value = senderVar;
+  const regex = /^Re: /;
+  if(regex.test(subjectVar) == true) {
+    document.querySelector('#compose-subject').value = `${subjectVar}`;  
+  } else {
+    document.querySelector('#compose-subject').value = `Re: ${subjectVar}`;
+  } 
+  let reply_body = `\n-----------\n`
+                  +`\nOn ${timestampVar}, ${senderVar} wrote:`
+                  +`\n${bodyVar}\n-----------\n`
+                  + `Reply:\n`
+                  ;
+  document.querySelector('#compose-body').value = reply_body;
+
+  //////------ Submit is clicked
+  document.querySelector('form').onsubmit = (event) => {
+    // send value from form's fields and trigger POST api
+    let recipients = document.querySelector('#compose-recipients').value; // use .value to collect data from a Form Submit
+    let subject = document.querySelector('#compose-subject').value;
+    let body = document.querySelector('#compose-body').value;
+    post_email(recipients, subject, body);
+    
+  }
 }
