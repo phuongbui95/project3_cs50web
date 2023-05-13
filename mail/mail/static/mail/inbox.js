@@ -117,20 +117,43 @@ function viewEmail(emailID, mailbox) {
           <b>Timestamp</b>: ${email.timestamp}
         </div>
         <div class="email-buttons">
-          <button class="replyButton">Reply</button>
-          <button class="archiveButton">Archive</button>
-          <button class="unarchiveButton">Unarchive</button>
+          <button class="replyButton"> Reply </button>
+          <button class="archiveButton"> Archive </button>
+          <button class="unarchiveButton"> Unarchive </button>
         </div>
         <hr>
-        <div class="email-body">${email.body}</div>
         `;
+        // .email-body // ${email.body.replace(/\[To Split\]/g, '<hr>')}
+        let inputBody;
+        if(email.body.search('[To Split]')<0) {
+          console.log('No replies yet!');
+          inputBody = email.body;
+        } else {
+          let bodyArray = email.body.split('[To Split]');
+          console.log('At least 1 reply');
+          inputBody = `${bodyArray[1]}<br>${bodyArray[bodyArray.length-1]}`;
+        }
+        
+        emailBody = `
+        <div class="email-body">
+          <p> 
+            ${inputBody}
+          </p>
+        </div>
+        `;
+        // Add .email-body to email div
+        childNode.innerHTML += emailBody;
+
         // Append child element to parent
         // Get parent element
         const parentNode = document.querySelector('#in-email-view');
         parentNode.appendChild(childNode);
       }
 
-      //** archive/unarchive button
+      /** archive/unarchive button
+       *  Task 01: Hide unexpected buttons
+       *  Task 02: Trigger the event being listened
+      */ 
       // Hide the expected buttons
       let hiddenButtons = {
         'sent': ['archiveButton', 'unarchiveButton'],
@@ -141,12 +164,18 @@ function viewEmail(emailID, mailbox) {
         console.log('Hidden Button: ', value);
         document.querySelector(`#email_${emailID} .${value}`).style.display = 'none';
       }
+
       // Trigger the buttons
       document.querySelector(`#email_${emailID} .archiveButton`).onclick = () => {
         archiveEmail(emailID, '.archiveButton');
       }
       document.querySelector(`#email_${emailID} .unarchiveButton`).onclick = () => {
         archiveEmail(emailID, '.unarchiveButton');
+      }
+
+      /** Trigger Reply button in particular email id */
+      document.querySelector(`#email_${emailID} .replyButton`).onclick = () => {
+        replyEmail(emailID, email.sender, email.subject, email.body, email.timestamp);
       }
   });
   
@@ -157,7 +186,7 @@ function archiveEmail(emailID, actionClass) {
   fetch(`emails/${emailID}`, {
     method: 'PUT',
     body: JSON.stringify({
-        archived: actionClass === '.archiveButton' ? true : false
+        archived: actionClass === '.archiveButton' ? true : false //really like this ternary operator!
     })
   })
   .then(response => {
@@ -169,6 +198,33 @@ function archiveEmail(emailID, actionClass) {
     
 }
   
-function replyEmail() {
+function replyEmail(emailID, emailSender, emailSubject, emailBody, emailTimestamp) {
+  // Show composition form and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#in-email-view').style.display = 'none';
+  
+  document.querySelector('#compose-subject').value = '';
+  document.querySelector('#compose-body').value = '';
 
+  // Pre-fill some texts from original email to the form
+  //// Recipient is sender of original email
+  document.querySelector('#compose-recipients').value = emailSender;
+  //// If at least 1 reply of this email does exist, do not add "Re: " anymore
+  document.querySelector('#compose-subject').value = 'Re: ' + emailSubject; 
+  //// Create a body_template => used once per reply only!
+  let body_template = `[To Split]\nOn ${emailTimestamp} ${emailSender} wrote:\n[To Split]\n${emailBody}\n[To Split]\n`;
+  document.querySelector('#compose-body').value = body_template;
+
+  // Submit
+  document.querySelector('form').onsubmit = (event) => { 
+    sendEmail(document.querySelector('#compose-recipients').value
+            ,document.querySelector('#compose-subject').value
+            ,document.querySelector('#compose-body').value
+            )
+    // Load 'sent' mailbox
+    event.preventDefault();
+    load_mailbox('sent');
+  }
+  
 }
