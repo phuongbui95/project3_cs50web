@@ -8,11 +8,6 @@ textarea {
     padding: 5px;
 }
 
-/* does not work??? */
-.emails-grid:hover {
-    background-color: blue;
-}
-
 .gridItem-timestamp {
     text-align: right;
 }
