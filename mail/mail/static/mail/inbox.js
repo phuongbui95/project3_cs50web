@@ -15,6 +15,7 @@ function compose_email() {
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'block';
     document.querySelector('#in-email-view').style.display = 'none';
+    document.querySelector('#compose-view .pre-filled-body').style.display = 'none';
   
     // Clear out composition fields
     document.querySelector('#compose-recipients').value = '';
@@ -99,7 +100,7 @@ function viewEmail(emailID, mailbox) {
   .then(response => response.json())
   .then(email => {
       // Print email
-      console.log(`Email ${email.id} is clicked.`);
+      console.log(`Email ${emailID} is clicked.`);
       // Only display the div related to emailID
       const emailChildren = document.querySelectorAll('#in-email-view > div');
       emailChildren.forEach(child => child.style.display = child.id === `email_${emailID}` ? 'block' : 'none');
@@ -124,16 +125,13 @@ function viewEmail(emailID, mailbox) {
         <hr>
         `;
         // .email-body // ${email.body.replace(/\[To Split\]/g, '<hr>')}
-        let inputBody;
-        if(email.body.search('[To Split]')<0) {
-          console.log('No replies yet!');
-          inputBody = email.body;
-        } else {
-          let bodyArray = email.body.split('[To Split]');
-          console.log('At least 1 reply');
-          inputBody = `${bodyArray[1]}<br>${bodyArray[bodyArray.length-1]}`;
-        }
-        
+        // let bodyArray = email.body.split('------');
+        // let inputBody = `${bodyArray[bodyArray.length-1]}`;
+        // if(email.body.search('------')<0) {
+        //   inputBody = email.body;
+        // }
+        const inputBody = email.body.split('------').pop() || email.body;
+
         emailBody = `
         <div class="email-body">
           <p> 
@@ -211,11 +209,16 @@ function replyEmail(emailID, emailSender, emailSubject, emailBody, emailTimestam
   //// Recipient is sender of original email
   document.querySelector('#compose-recipients').value = emailSender;
   //// If at least 1 reply of this email does exist, do not add "Re: " anymore
-  document.querySelector('#compose-subject').value = 'Re: ' + emailSubject; 
-  //// Create a body_template => used once per reply only!
-  let body_template = `[To Split]\nOn ${emailTimestamp} ${emailSender} wrote:\n[To Split]\n${emailBody}\n[To Split]\n`;
-  document.querySelector('#compose-body').value = body_template;
+  document.querySelector('#compose-subject').value = emailSubject.slice(0, 4) === 'Re: ' ? emailSubject : `Re: ${emailSubject}`;
+  // let prefilledBody = `On <b>${emailTimestamp} ${emailSender}</b> wrote:<br>${emailBody.trim()}`;
+  // document.querySelector('#compose-view .pre-filled-body').style.display = 'block';
+  // document.querySelector('#compose-view .pre-filled-body').innerHTML = prefilledBody;
 
+  // Create a body_template => used once per reply only!
+  let emailBody_adjusted = emailBody.split("------").pop() || emailBody;
+  let body_template = `------On ${emailTimestamp} ${emailSender} wrote------\n${emailBody_adjusted.trim()}\n------\n`;
+  document.querySelector('#compose-body').value = body_template;
+  
   // Submit
   document.querySelector('form').onsubmit = (event) => { 
     sendEmail(document.querySelector('#compose-recipients').value
