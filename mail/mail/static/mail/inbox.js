@@ -15,7 +15,7 @@ function compose_email() {
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'block';
     document.querySelector('#in-email-view').style.display = 'none';
-    document.querySelector('#compose-view .pre-filled-body').style.display = 'none';
+    // document.querySelector('#compose-view .pre-filled-body').style.display = 'none';
   
     // Clear out composition fields
     document.querySelector('#compose-recipients').value = '';
@@ -154,7 +154,7 @@ function viewEmail(emailID, mailbox) {
       */ 
       // Hide the expected buttons
       let hiddenButtons = {
-        'sent': ['archiveButton', 'unarchiveButton'],
+        'sent': ['archiveButton', 'unarchiveButton', 'replyButton'],
         'inbox': ['unarchiveButton'],
         'archive': ['archiveButton', 'replyButton'],
       };
@@ -216,7 +216,7 @@ function replyEmail(emailID, emailSender, emailSubject, emailBody, emailTimestam
 
   // Create a body_template => used once per reply only!
   let emailBody_adjusted = emailBody.split("------").pop() || emailBody;
-  let body_template = `------On ${emailTimestamp} ${emailSender} wrote------\n${emailBody_adjusted.trim()}\n------\n`;
+  let body_template = `------On ${emailTimestamp}, ${emailSender} wrote------\n${emailBody_adjusted.trim()}\n------\n`;
   document.querySelector('#compose-body').value = body_template;
   
   // Submit
