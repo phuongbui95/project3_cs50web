@@ -76,10 +76,10 @@ function openMailbox(mailbox) {
       // Loop go through each email in the array
       emails.forEach(email => {
         const listedEmail_div = document.createElement('div');
-        listedEmail_div.className = `${mailbox} email_${email.id}`;
-        listedEmail_div.innerHTML = `${email.sender} | ${email.subject} | ${email.timestamp}`;
+        listedEmail_div.className = `${mailbox} email_${email.id} emails-grid`;
+        listedEmail_div.innerHTML = `<div class="gridItem-sender">${email.sender}</div><div class="gridItem-subject">${email.subject}</div><div class="gridItem-timestamp">${email.timestamp}</div>`;
         listedEmail_div.style.border = '1px solid black';
-        listedEmail_div.style.backgroundColor = email.read ? 'gray' : 'white'; // email.read is a boolen variable
+        listedEmail_div.style.backgroundColor = email.read ? 'lightgray' : 'white'; // email.read is a boolen variable
         document.querySelector('#emails-view').append(listedEmail_div);
         
         // view email
@@ -95,7 +95,15 @@ function openMailbox(mailbox) {
 // look into an email
 function viewEmail(emailID, mailbox) {
   console.log(`email id: ${emailID}, mailbox: ${mailbox}`);
+  // Send PUT request to api 
+  fetch(`/emails/${emailID}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true //update emai.read = true;
+    })
+  })
 
+  // Send GET request to api
   fetch(`/emails/${emailID}`)
   .then(response => response.json())
   .then(email => {
@@ -154,14 +162,13 @@ function viewEmail(emailID, mailbox) {
       */ 
       // Hide the expected buttons
       let hiddenButtons = {
-        'sent': ['archiveButton', 'unarchiveButton', 'replyButton'],
+        'sent': ['archiveButton', 'unarchiveButton'],
         'inbox': ['unarchiveButton'],
-        'archive': ['archiveButton', 'replyButton'],
+        'archive': ['archiveButton'],
       };
-      for(let value of hiddenButtons[mailbox] ) {
-        console.log('Hidden Button: ', value);
+      hiddenButtons[mailbox].forEach(value => {
         document.querySelector(`#email_${emailID} .${value}`).style.display = 'none';
-      }
+      })
 
       // Trigger the buttons
       document.querySelector(`#email_${emailID} .archiveButton`).onclick = () => {
