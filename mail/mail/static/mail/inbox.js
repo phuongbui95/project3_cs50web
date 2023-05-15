@@ -131,6 +131,7 @@ function viewEmail(emailID, mailbox) {
           <b>Recipients</b>: ${email.recipients}<br>
           <b>Subject</b>: ${email.subject}<br>
           <b>Timestamp</b>: ${email.timestamp}
+          
         </div>
         <div class="email-buttons">
           <button class="replyButton btn btn-sm btn-outline-primary"> Reply </button>
@@ -167,15 +168,19 @@ function viewEmail(emailID, mailbox) {
        *  Task 01: Hide unexpected buttons
        *  Task 02: Trigger the event being listened
       */ 
-      // Hide the expected buttons
-      let hiddenButtons = {
-        'sent': ['archiveButton', 'unarchiveButton', 'replyButton'],
-        'inbox': ['unarchiveButton'],
-        'archive': ['archiveButton', 'replyButton'],
-      };
-      hiddenButtons[mailbox].forEach(value => {
-        document.querySelector(`#email_${emailID} .${value}`).style.display = 'none';
-      })
+      // Hide the buttons
+      let btn = ['archiveButton', 'unarchiveButton'];
+      
+      if(mailbox == "inbox") {
+        document.querySelector(`#email_${emailID} .${btn[0]}`).style.display = 'block';
+        document.querySelector(`#email_${emailID} .${btn[1]}`).style.display = 'none';
+      } else if(mailbox == 'archive') {
+        document.querySelector(`#email_${emailID} .${btn[0]}`).style.display = 'none';
+        document.querySelector(`#email_${emailID} .${btn[1]}`).style.display = 'block';
+      } else{
+        document.querySelector(`#email_${emailID} .${btn[1]}`).style.display = 'none';
+        document.querySelector(`#email_${emailID} .${btn[0]}`).style.display = 'none';
+      }
 
       // Trigger the buttons
       document.querySelector(`#email_${emailID} .archiveButton`).onclick = () => {

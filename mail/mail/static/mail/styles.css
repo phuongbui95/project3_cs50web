@@ -2,10 +2,6 @@ textarea {
     min-height: 400px;
 }
 
-body {
-    background-color: lightgoldenrodyellow;
-}
-
 .nav-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -36,6 +32,9 @@ body {
 }
 
 .email-buttons {
+    display: grid;
+    grid-template-columns: 10% 10% 10%;
+    column-gap: 1%;
     padding-top: 1%;
 }
 
