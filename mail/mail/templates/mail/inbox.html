@@ -2,15 +2,17 @@
 {% load static %}
 
 {% block body %}
-    <h2>{{ request.user.email }}</h2>
-    
-    <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
-    <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
-    <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
-    <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
-    <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
+    <header class="nav-grid">
+        <div class="nav-div1">
+            <button class="btn btn-sm btn-outline-primary" id="inbox"><b>Inbox</b></button>
+            <button class="btn btn-sm btn-outline-primary" id="compose"><b>Compose</b></button>
+            <button class="btn btn-sm btn-outline-primary" id="sent"><b>Sent</b></button>
+            <button class="btn btn-sm btn-outline-primary" id="archived"><b>Archived</b></button>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}"><b>Log Out</b></a>    
+        </div>
+        <h2 class="nav-div2">{{ request.user.email }}</h2>  
+    </header>
     <hr>
-
     <div id="emails-view">
     </div>
 
@@ -40,3 +42,5 @@
 {% block script %}
     <script src="{% static 'mail/inbox.js' %}"></script>
 {% endblock %}
+
+

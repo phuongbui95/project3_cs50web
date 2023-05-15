@@ -5,6 +5,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
     document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
     document.querySelector('#compose').addEventListener('click', compose_email);
+
+    // Customize tasks
+    let h2_tag = document.querySelector('h2');
+    h2_tag.addEventListener('click', () => load_mailbox('inbox'));
+    let username = h2_tag.innerText.replace('@example.com','');
+    h2_tag.innerHTML = `Hello ${username.toUpperCase()} ^.^`;
+
   
     ////----- By default, load the inbox
     load_mailbox('inbox');
@@ -126,9 +133,9 @@ function viewEmail(emailID, mailbox) {
           <b>Timestamp</b>: ${email.timestamp}
         </div>
         <div class="email-buttons">
-          <button class="replyButton"> Reply </button>
-          <button class="archiveButton"> Archive </button>
-          <button class="unarchiveButton"> Unarchive </button>
+          <button class="replyButton btn btn-sm btn-outline-primary"> Reply </button>
+          <button class="archiveButton btn btn-sm btn-outline-primary"> Archive </button>
+          <button class="unarchiveButton btn btn-sm btn-outline-primary"> Unarchive </button>
         </div>
         <hr>
         `;
@@ -162,9 +169,9 @@ function viewEmail(emailID, mailbox) {
       */ 
       // Hide the expected buttons
       let hiddenButtons = {
-        'sent': ['archiveButton', 'unarchiveButton'],
+        'sent': ['archiveButton', 'unarchiveButton', 'replyButton'],
         'inbox': ['unarchiveButton'],
-        'archive': ['archiveButton'],
+        'archive': ['archiveButton', 'replyButton'],
       };
       hiddenButtons[mailbox].forEach(value => {
         document.querySelector(`#email_${emailID} .${value}`).style.display = 'none';

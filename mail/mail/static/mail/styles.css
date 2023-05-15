@@ -2,12 +2,41 @@ textarea {
     min-height: 400px;
 }
 
+body {
+    background-color: lightgoldenrodyellow;
+}
+
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding-top: 2%;
+}
+
+.nav-div2 {
+    text-align: right;
+    color: #007bff;
+    padding-right: 2%;
+}
+
 .emails-grid {
     display: grid;
     grid-template-columns: 1fr 3fr 1fr;
     padding: 5px;
+
+    border-radius: 5px;
+    margin-bottom: 0.25%;
+}
+
+#emails-view>.emails-grid :hover {
+    background-color: lightblue;
 }
 
 .gridItem-timestamp {
     text-align: right;
 }
+
+.email-buttons {
+    padding-top: 1%;
+}
+
+
